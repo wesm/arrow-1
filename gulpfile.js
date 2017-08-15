@@ -123,23 +123,15 @@ function bundleTask(target, format, taskName, outDir) {
 }
 
 function testTask(target, format, taskName, outDir, debug) {
-    const testTSConfigPath = `./test/tsconfig.json`;
     const jestOptions = !debug ? [] : [
         `--runInBand`, `--env`, `jest-environment-node-debug`
     ];
     argv.update && jestOptions.unshift(`-u`);
     argv.verbose && jestOptions.unshift(`--verbose`);
     const forkOptions = {
-        execPath: `node`,
-        execArgv: [
-            `--harmony_async_iteration`,
-            ...(!debug ? [] : [`--inspect-brk`])
-        ],
+        execArgv: (!debug ? [] : [`--inspect-brk`]),
         stdio: [`ignore`, `inherit`, `inherit`, `ipc`],
         env: Object.assign({}, process.env, {
-            TS_NODE_FAST: true,
-            TS_NODE_CACHE: false,
-            TS_NODE_PROJECT: testTSConfigPath,
             TEST_TARGET: target, TEST_MODULE: format
         })
     };
@@ -150,7 +142,7 @@ function testTask(target, format, taskName, outDir, debug) {
                 jestOptions, forkOptions
             );
             proc.on(`error`, onError);
-            proc.on(`close`, (x) => cb());
+            proc.on(`close`, (x) => x ? onError(x) : cb());
         }
     ];
 }
