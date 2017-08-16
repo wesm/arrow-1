@@ -2,3 +2,6 @@
 rat_exclude_files.txt
 /.npmignore
 pax_global_header
+*_generated.js
+*.json
+*.snap
